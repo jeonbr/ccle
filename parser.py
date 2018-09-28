@@ -129,7 +129,7 @@ def _map_line_to_json(df):
 # load as json data
     one_snp_json = {
         "_id": HGVS,
-        "ccle_depmap": ccle_depmap
+        "ccle": ccle_depmap
     }
     one_snp_json = value_convert_to_number(one_snp_json)
     return one_snp_json
