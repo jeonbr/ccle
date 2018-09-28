@@ -152,7 +152,7 @@ def clean_data(d, vals):
 
 
 # open file, parse, pass to json mapper
-def load_data(input_file, version='hg19'):
+def load_data(input_file):
     open_file = open(input_file)
     db_ccle = csv.reader(open_file, delimiter='\t')
     index = next(db_ccle)
