@@ -1,40 +1,67 @@
 import csv
-import logging
-import os
 from itertools import groupby
 
 from biothings.utils.dataload import unlist
 from biothings.utils.dataload import value_convert_to_number
 from biothings.utils.dataload import merge_duplicate_rows, dict_sweep
-from utils.hgvs import get_hgvs_from_vcf
+import re
 
+def get_hgvs_from_vcf(chr, pos, ref, alt, mutant_type=None):
+    '''get a valid hgvs name from VCF-style "chr, pos, ref, alt" data.'''
+    if not (re.match('^[ACGTN]+$', ref) and re.match('^[ACGTN*]+$', alt)):
+        raise ValueError("Cannot convert {} into HGVS id.".format((chr, pos, ref, alt)))
+    if len(ref) == len(alt) == 1:
+        # this is a SNP
+        hgvs = 'chr{0}:g.{1}{2}>{3}'.format(chr, pos, ref, alt)
+        var_type = 'snp'
+    elif len(ref) > 1 and len(alt) == 1:
+        # this is a deletion:
+        if ref[0] == alt:
+            start = int(pos) + 1
+            end = int(pos) + len(ref) - 1
+            if start == end:
+                hgvs = 'chr{0}:g.{1}del'.format(chr, start)
+            else:
+                hgvs = 'chr{0}:g.{1}_{2}del'.format(chr, start, end)
+            var_type = 'del'
+        else:
+            end = int(pos) + len(ref) - 1
+            hgvs = 'chr{0}:g.{1}_{2}delins{3}'.format(chr, pos, end, alt)
+            var_type = 'delins'
+    elif len(ref) == 1 and len(alt) > 1:
+        # this is a insertion
+        if alt[0] == ref:
+            hgvs = 'chr{0}:g.{1}_{2}ins'.format(chr, pos, int(pos) + 1)
+            ins_seq = alt[1:]
+            hgvs += ins_seq
+            var_type = 'ins'
+        else:
+            hgvs = 'chr{0}:g.{1}delins{2}'.format(chr, pos, alt)
+            var_type = 'delins'
+    elif len(ref) > 1 and len(alt) > 1:
+        if ref[0] == alt[0]:
+            # if ref and alt overlap from the left, trim them first
+            _chr, _pos, _ref, _alt = _normalized_vcf(chr, pos, ref, alt)
+            return get_hgvs_from_vcf(_chr, _pos, _ref, _alt, mutant_type=mutant_type)
+        else:
+            end = int(pos) + len(ref) - 1
+            hgvs = 'chr{0}:g.{1}_{2}delins{3}'.format(chr, pos, end, alt)
+            var_type = 'delins'
+    else:
+        raise ValueError("Cannot convert {} into HGVS id.".format((chr, pos, ref, alt)))
+    if mutant_type:
+        return hgvs, var_type
+    else:
+        return hgvs
 
 VALID_COLUMN_NO = 33
-DATA_CHECK = True
 
-log_fn = './datacheck.log'
-if DATA_CHECK:
-    if os.path.isfile(log_fn):
-        os.remove(log_fn)
-
-logging.basicConfig(filename='./datacheck.log', level=logging.DEBUG)
-
-data_counter = {
-    "GENOMIC_POSITION_ERROR": 0,
-    "NO_GENOMIC_POSITION": 0,
-    "ROWS": 0,
-    "DATA_INPUT": 0,
-    "DATA_OUTPUT": 0,
-}
 '''this parser is for CCLE Merged mutation calls (coding region, germline filtered) downloaded from
 https://data.broadinstitute.org/ccle/CCLE_DepMap_18q3_maf_20180718.txt'''
 
 
 # convert one snp to json
 def _map_line_to_json(df):
-    if DATA_CHECK:
-        data_counter['ROWS'] += 1
-    # specific variable treatment
 
     chrom = df['chromosome']
     if chrom == 'M':
@@ -61,8 +88,6 @@ def _map_line_to_json(df):
                                  alt,
                                  mutant_type=False)
 
-    if HGVS.replace('g.', '') != df['genome_change'].replace('g.', ''):
-        logging.debug("HGVS mismatch\t {}\t{}".format(HGVS, df['genome_change']) )
     ccle_depmap = {
             'hugo_symbol': df['hugo_symbol'],
             'entrez_gene_id': df['entrez_gene_id'],
@@ -107,8 +132,6 @@ def _map_line_to_json(df):
         "ccle_depmap": ccle_depmap
     }
     one_snp_json = value_convert_to_number(one_snp_json)
-    if DATA_CHECK:
-        data_counter["DATA_OUTPUT"] += 1
     return one_snp_json
 
 
