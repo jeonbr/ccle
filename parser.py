@@ -152,7 +152,8 @@ def clean_data(d, vals):
 
 
 # open file, parse, pass to json mapper
-def load_data(input_file):
+def load_data(data_folder):
+    input_file = os.path.join(data_folder,"CCLE_DepMap_18q3_maf_20180718.txt")
     open_file = open(input_file)
     db_ccle = csv.reader(open_file, delimiter='\t')
     index = next(db_ccle)
