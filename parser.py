@@ -7,7 +7,7 @@ from biothings.utils.dataload import unlist
 from biothings.utils.dataload import value_convert_to_number
 from biothings.utils.dataload import merge_duplicate_rows, dict_sweep
 
-from utilities import get_hgvs_from_vcf
+from utilities import get_hgvs_from_vcf, csvsort
 
 VALID_COLUMN_NO = 33
 
@@ -109,7 +109,9 @@ def clean_data(d, vals):
 # open file, parse, pass to json mapper
 def load_data(data_folder):
     input_file = os.path.join(data_folder,"CCLE_DepMap_18q3_maf_20180718.txt")
-    open_file = open(input_file)
+    sorted_fn = "CCLE_DepMap_18q3_maf_20180718_sorted.txt"
+    csvsort(input_file, columns=[3,4], has_header=True,output_filename= sorte_fn, delimiter='\t')
+    open_file = open(sorted_fn)
     db_ccle = csv.reader(open_file, delimiter='\t')
     index = next(db_ccle)
     assert len(index) == VALID_COLUMN_NO, \
