@@ -7,13 +7,15 @@ from biothings.utils.dataload import unlist
 from biothings.utils.dataload import value_convert_to_number
 from biothings.utils.dataload import merge_duplicate_rows, dict_sweep
 
-from utilities import get_hgvs_from_vcf, csvsort
+import parser_util get_hgvs_from_vcf, csvsort
 
 VALID_COLUMN_NO = 33
 
 '''this parser is for CCLE Merged mutation calls (coding region, germline filtered) downloaded from
 https://data.broadinstitute.org/ccle/CCLE_DepMap_18q3_maf_20180718.txt'''
 
+get_hgvs_from_vcf = parser_util.get_hgvs_from_vcf
+csvsort = parser_util.csvsort
 
 # convert one snp to json
 def _map_line_to_json(df):
