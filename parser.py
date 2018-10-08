@@ -125,7 +125,7 @@ def load_data(data_folder):
 
     csvsort("alldata.csv", columns=[0,], has_header=False)
 
-    json_rows = csv.reader(open(sorted_fn))
+    json_rows = csv.reader(open("alldata.csv"))
     json_rows = (eval(row[1]) for row in json_rows)
 
     row_groups = (it for (key, it)
