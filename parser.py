@@ -123,7 +123,7 @@ def load_data(data_folder):
         for doc in json_rows:
             dbwriter.writerow([doc['_id'], str(doc)])
 
-    csvsort("alldata.csv", columns=[0,], has_header=False, delimiter='\t')
+    csvsort("alldata.csv", columns=[0,], has_header=False)
 
     json_rows = csv.reader(open(sorted_fn))
     json_rows = (eval(row[1]) for row in json_rows)
