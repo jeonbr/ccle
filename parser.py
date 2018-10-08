@@ -109,7 +109,7 @@ def clean_data(d, vals):
 def load_data(data_folder):
     input_file = os.path.join(data_folder,"CCLE_DepMap_18q3_maf_20180718.txt")
     sorted_fn = "CCLE_DepMap_18q3_maf_20180718_sorted.txt"
-    csvsort(input_file, columns=[3,4], has_header=True,output_filename= sorte_fn, delimiter='\t')
+    csvsort(input_file, columns=[3,4], has_header=True,output_filename= sorted_fn, delimiter='\t')
     open_file = open(sorted_fn)
     db_ccle = csv.reader(open_file, delimiter='\t')
     index = next(db_ccle)
