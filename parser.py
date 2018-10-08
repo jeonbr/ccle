@@ -123,5 +123,5 @@ def load_data(data_folder):
 #    json_rows = sorted(json_rows, key=lambda row: row["_id"])
     row_groups = (it for (key, it)
                   in groupby(json_rows, lambda row: row["_id"]))
-    json_rows = (merge_duplicate_rows(rg, "ccle_depmap") for rg in row_groups)
+    json_rows = (merge_duplicate_rows(rg, "ccle") for rg in row_groups)
     return (unlist(dict_sweep(row, vals=[None, ])) for row in json_rows)
