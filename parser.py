@@ -109,7 +109,7 @@ def clean_data(d, vals):
 def load_data(data_folder):
     input_file = os.path.join(data_folder,"CCLE_DepMap_18q3_maf_20180718.txt")
     sorted_fn = "CCLE_DepMap_18q3_maf_20180718_sorted.txt"
-    csvsort(input_file, columns=[3,4], has_header=True,output_filename= sorted_fn, delimiter='\t')
+#    csvsort(input_file, columns=[3,4], has_header=True,output_filename= sorted_fn, delimiter='\t')
     open_file = open(sorted_fn)
     db_ccle = csv.reader(open_file, delimiter='\t')
     index = next(db_ccle)
@@ -120,7 +120,17 @@ def load_data(data_folder):
     ccle = filter(lambda row: row["chromosome"] != "", ccle)
     json_rows = map(_map_line_to_json, ccle)
     json_rows = (row for row in json_rows if row)
-#    json_rows = sorted(json_rows, key=lambda row: row["_id"])
+
+    with open("alldata.csv", "w") as f:
+        dbwriter = csv.writer(f)
+        for doc in json_rows:
+            dbwriter.writerow([doc['_id'], str(doc)])
+
+    csvsort("alldata.csv", columns=[0,], has_header=True,output_filename= sorted_fn, delimiter='\t')
+
+    json_rows = csv.reader(open(sorted_fn))
+    json_rows = (eval(row[1]) for row in json_rows)
+
     row_groups = (it for (key, it)
                   in groupby(json_rows, lambda row: row["_id"]))
     json_rows = (merge_duplicate_rows(rg, "ccle") for rg in row_groups)
