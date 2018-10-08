@@ -107,11 +107,8 @@ def clean_data(d, vals):
 
 # open file, parse, pass to json mapper
 def load_data(data_folder):
-    input_file = os.path.join(data_folder,"CCLE_DepMap_18q3_maf_20180718.txt")
-    sorted_fn = "CCLE_DepMap_18q3_maf_20180718_sorted.txt"
-#    csvsort(input_file, columns=[3,4], has_header=True,output_filename= sorted_fn, delimiter='\t')
-    open_file = open(sorted_fn)
-    db_ccle = csv.reader(open_file, delimiter='\t')
+    input_fn = os.path.join(data_folder,"CCLE_DepMap_18q3_maf_20180718.txt")
+    db_ccle = csv.reader(open(input_fn), delimiter='\t')
     index = next(db_ccle)
     assert len(index) == VALID_COLUMN_NO, \
         "Expecting %s columns, but got %s" % (VALID_COLUMN_NO, len(index))
@@ -126,7 +123,7 @@ def load_data(data_folder):
         for doc in json_rows:
             dbwriter.writerow([doc['_id'], str(doc)])
 
-    csvsort("alldata.csv", columns=[0,], has_header=True,output_filename= sorted_fn, delimiter='\t')
+    csvsort("alldata.csv", columns=[0,], has_header=False, delimiter='\t')
 
     json_rows = csv.reader(open(sorted_fn))
     json_rows = (eval(row[1]) for row in json_rows)
