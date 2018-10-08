@@ -120,7 +120,7 @@ def load_data(data_folder):
     ccle = filter(lambda row: row["chromosome"] != "", ccle)
     json_rows = map(_map_line_to_json, ccle)
     json_rows = (row for row in json_rows if row)
-    json_rows = sorted(json_rows, key=lambda row: row["_id"])
+#    json_rows = sorted(json_rows, key=lambda row: row["_id"])
     row_groups = (it for (key, it)
                   in groupby(json_rows, lambda row: row["_id"]))
     json_rows = (merge_duplicate_rows(rg, "ccle_depmap") for rg in row_groups)
