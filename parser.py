@@ -1,5 +1,6 @@
 import os
 import csv
+import json
 from itertools import groupby
 
 
@@ -46,7 +47,7 @@ def _map_line_to_json(df):
             'hugo_symbol': df['hugo_symbol'],
             'entrez_gene_id': df['entrez_gene_id'],
             'ncbi_build': df['ncbi_build'],
-            'chromosome': df['chromosome'],
+            'chromosome': str(df['chromosome']),
             'start_position': df['start_position'],
             'end_position': df['end_position'],
             'strand': df['strand'],
@@ -121,12 +122,12 @@ def load_data(data_folder):
     with open("alldata.csv", "w") as f:
         dbwriter = csv.writer(f)
         for doc in json_rows:
-            dbwriter.writerow([doc['_id'], str(doc)])
+            dbwriter.writerow([doc['_id'], json.dumps(doc)])
 
     csvsort("alldata.csv", columns=[0,], has_header=False)
 
     json_rows = csv.reader(open("alldata.csv"))
-    json_rows = (eval(row[1]) for row in json_rows)
+    json_rows = (json.loads(row[1]) for row in json_rows)
 
     row_groups = (it for (key, it)
                   in groupby(json_rows, lambda row: row["_id"]))
