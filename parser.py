@@ -47,7 +47,7 @@ def _map_line_to_json(df):
             'hugo_symbol': df['hugo_symbol'],
             'entrez_gene_id': df['entrez_gene_id'],
             'ncbi_build': df['ncbi_build'],
-            'chromosome': str(df['chromosome']),
+            'chromosome': df['chromosome'],
             'start_position': df['start_position'],
             'end_position': df['end_position'],
             'strand': df['strand'],
@@ -87,6 +87,7 @@ def _map_line_to_json(df):
         "ccle": ccle_depmap
     }
     one_snp_json = value_convert_to_number(one_snp_json)
+    one_snp_json['ccle']['chromosome'] = str(one_snp_json['ccle']['chromosome'])
     return one_snp_json
 
 
