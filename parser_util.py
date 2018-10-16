@@ -1,5 +1,23 @@
 import re
 
+def boolean_convert(d, convert_keys=[], level=0):
+    """Explore document d and specified convert keys to boolean.
+    Use dotfield notation for inner keys"""
+    for key, val in d.items():
+        if isinstance(val, dict):
+            d[key] = boolean_convert(val, convert_keys)
+        if key in [ak.split(".")[level] for ak in convert_keys if len(ak.split(".")) > level]:
+            if isinstance(val, list) or isinstance(val, tuple):
+                if val and isinstance(val[0],dict):
+                    d[key] = [boolean_convert(v,convert_keys,level+1) for v in val]
+                else:
+                    d[key] = [to_boolean(x) for x in val]
+            elif isinstance(val, dict) or isinstance(val, collections.OrderedDict):
+                d[key] = boolean_convert(val, convert_keys, level+1)
+            else:
+                d[key] = to_boolean(val)
+    return d
+
 def get_hgvs_from_vcf(chr, pos, ref, alt, mutant_type=None):
     '''get a valid hgvs name from VCF-style "chr, pos, ref, alt" data.'''
     if not (re.match('^[ACGTN]+$', ref) and re.match('^[ACGTN*]+$', alt)):
