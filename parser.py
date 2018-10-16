@@ -6,7 +6,7 @@ from itertools import groupby
 
 from biothings.utils.dataload import unlist
 from biothings.utils.dataload import value_convert_to_number
-from biothings.utils.dataload import merge_duplicate_rows, dict_sweep
+from biothings.utils.dataload import merge_duplicate_rows, dict_sweep, to_boolean
 
 from .parser_util import get_hgvs_from_vcf, csvsort
 
@@ -44,34 +44,33 @@ def _map_line_to_json(df):
                                  mutant_type=False)
 
     ccle_depmap = {
-            'hugo_symbol': df['hugo_symbol'],
-            'entrez_gene_id': df['entrez_gene_id'],
-            'ncbi_build': df['ncbi_build'],
+            'gene': {'id': df['entrez_gene_id'],
+                     'symbol': df['hugo_symbol'] },
             'chromosome': df['chromosome'],
-            'start_position': df['start_position'],
-            'end_position': df['end_position'],
+            'hg19': { 'start': df['start_position'],
+                      'end': df['end_position'] },
             'strand': df['strand'],
-            'variant_classification': df['variant_classification'],
-            'variant_type': df['variant_type'],
-            'reference_allele': df['reference_allele'],
+            'class': df['variant_classification'],
+            'vartype': df['variant_type'],
+            'ref': df['reference_allele'],
             'tumor_seq_allele1': df['tumor_seq_allele1'],
-            'dbsnp_rs': df['dbsnp_rs'],
-            'dbsnp_val_status': df['dbsnp_val_status'],
+            'dbsnp': {'rsid': df['dbsnp_rs'],
+                      'val_status': df['dbsnp_val_status']},
             'genome_change': df['genome_change'],
             'annotation_transcript': df['annotation_transcript'],
             'tumor_sample_barcode': df['tumor_sample_barcode'],
             'cdna_change': df['cdna_change'],
             'codon_change': df['codon_change'],
             'protein_change': df['protein_change'],
-            'isdeleterious': df['isdeleterious'],
-            'istcgahotspot': df['istcgahotspot'],
+            'isdeleterious':to_boolean(df['isdeleterious'],true_str=['TRUE',],false_str=['FALSE',]),
+            'istcgahotspot': to_boolean(df['istcgahotspot'],true_str=['TRUE',],false_str=['FALSE',]),
             'tcgahscnt': df['tcgahscnt'],
-            'iscosmichotspot': df['iscosmichotspot'],
+            'iscosmichotspot': to_boolean(df['iscosmichotspot'],true_str=['TRUE',],false_str=['FALSE',]),
             'cosmichscnt': df['cosmichscnt'],
             'exac_af': df['exac_af'],
             'wes_ac': df['wes_ac'],
-            'sangerwes_ac': df['sangerwes_ac'],
-            'sangerrecalibwes_ac': df['sangerrecalibwes_ac'],
+            'sanger': { 'wes_ac': df['sangerwes_ac'],
+                        'recalibwes_ac': df['sangerrecalibwes_ac']} ,
             'rnaseq_ac': df['rnaseq_ac'],
             'hc_ac': df['hc_ac'],
             'rd_ac': df['rd_ac'],
