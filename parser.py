@@ -8,7 +8,7 @@ from biothings.utils.dataload import unlist
 from biothings.utils.dataload import value_convert_to_number
 from biothings.utils.dataload import merge_duplicate_rows, dict_sweep, to_boolean
 
-from .parser_util import get_hgvs_from_vcf, csvsort
+from .parser_util import get_hgvs_from_vcf
 
 VALID_COLUMN_NO = 33
 
