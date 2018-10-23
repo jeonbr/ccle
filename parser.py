@@ -86,7 +86,7 @@ def _map_line_to_json(df):
         "ccle": ccle_depmap
     }
     one_snp_json = value_convert_to_number(one_snp_json)
-    one_snp_json['ccle']['chromosome'] = str(one_snp_json['ccle']['chromosome'])
+    one_snp_json['ccle']['chrom'] = str(one_snp_json['ccle']['chrom'])
     return one_snp_json
 
 
