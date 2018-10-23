@@ -46,7 +46,7 @@ def _map_line_to_json(df):
     ccle_depmap = {
             'gene': {'id': df['entrez_gene_id'],
                      'symbol': df['hugo_symbol'] },
-            'chromosome': df['chromosome'],
+            'chrom': chrom,
             'hg19': { 'start': df['start_position'],
                       'end': df['end_position'] },
             'strand': df['strand'],
@@ -118,17 +118,7 @@ def load_data(data_folder):
     ccle = filter(lambda row: row["chromosome"] != "", ccle)
     json_rows = map(_map_line_to_json, ccle)
     json_rows = (row for row in json_rows if row)
-
-    with open("alldata.csv", "w") as f:
-        dbwriter = csv.writer(f)
-        for doc in json_rows:
-            dbwriter.writerow([doc['_id'], json.dumps(doc)])
-
-    csvsort("alldata.csv", columns=[0,], has_header=False)
-
-    json_rows = csv.reader(open("alldata.csv"))
-    json_rows = (json.loads(row[1]) for row in json_rows)
-
+    json_rows = sorted(json_rows, key=lambda k: k['_id'])
     row_groups = (it for (key, it)
                   in groupby(json_rows, lambda row: row["_id"]))
     json_rows = (merge_duplicate_rows(rg, "ccle") for rg in row_groups)
